@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최단 경로 시각화</title>
+    <!-- Google Maps JavaScript API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>최단 경로 알고리즘 시각화</h1>
+        </header>
+        
+        <main>
+            <div class="search-container">
+                <div class="input-group">
+                    <input type="text" id="start" placeholder="출발지 입력">
+                    <input type="text" id="end" placeholder="도착지 입력">
+                    <button id="findPath">경로 찾기</button>
+                </div>
+                
+                <div class="control-panel">
+                    <button id="prevStep" disabled>이전 단계</button>
+                    <button id="nextStep" disabled>다음 단계</button>
+                    <button id="reset" disabled>초기화</button>
+                </div>
+            </div>
+
+            <div id="map"></div>
+            
+            <div class="info-panel">
+                <h3>알고리즘 진행 상태</h3>
+                <div id="algorithmStatus"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pathVisualizer.js') }}"></script>
+</body>
+</html>

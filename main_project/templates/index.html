@@ -1,0 +1,78 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최단 경로 찾기</title>
+    <!-- Google Maps API -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places&callback=initMap">
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>최단 경로 찾기</h1>
+        </header>
+
+        <main>
+            <!-- 검색 섹션 -->
+            <section class="search-section">
+                <div class="search-container">
+                    <div class="input-group">
+                        <label for="origin">출발지:</label>
+                        <input type="text" id="origin" placeholder="출발지를 입력하세요">
+                    </div>
+                    <div class="input-group">
+                        <label for="destination">도착지:</label>
+                        <input type="text" id="destination" placeholder="도착지를 입력하세요">
+                    </div>
+                    <div class="button-group">
+                        <select id="travelMode">
+                            <option value="DRIVING">자동차</option>
+                            <option value="TRANSIT">대중교통</option>
+                            <option value="WALKING">도보</option>
+                        </select>
+                        <button id="findRouteBtn" onclick="findRoute()">경로 찾기</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 지도 섹션 -->
+            <section class="map-section">
+                <div id="map"></div>
+            </section>
+
+            <!-- 결과 섹션 -->
+            <section class="result-section">
+                <div id="routeInfo" class="route-info">
+                    <!-- 경로 정보가 여기에 표시됩니다 -->
+                </div>
+                <div id="routeDetails" class="route-details">
+                    <!-- 상세 경로가 여기에 표시됩니다 -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>© 2024 최단 경로 찾기. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>
