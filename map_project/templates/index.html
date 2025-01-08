@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortest Path Finder</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Shortest Path Finder</h1>
+    <div id="controls">
+        <input id="start" type="text" placeholder="Enter starting point">
+        <input id="end" type="text" placeholder="Enter destination">
+        <button id="findPath">Find Path</button>
+    </div>
+    <div id="map" style="width: 100%; height: 500px;"></div>
+    <script src="/static/js/map.js"></script>
+</body>
+</html>
