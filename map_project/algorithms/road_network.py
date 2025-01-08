@@ -1,31 +1,25 @@
-import requests
+import osmnx as ox
 
-def get_road_data(start, end):
+def load_dynamic_graph(start, end):
     """
-    OSRM API에서 출발지와 도착지 간의 경로 데이터를 가져오는 함수.
+    주어진 출발지와 도착지 좌표를 기반으로 그래프를 로드.
+    :param start: 출발지 좌표 {"lat": ..., "lng": ...}
+    :param end: 도착지 좌표 {"lat": ..., "lng": ...}
+    :return: 로드된 도로 그래프
     """
-    OSRM_BASE_URL = "http://router.project-osrm.org/route/v1/driving/"
-    start_coords = f"{start['lng']},{start['lat']}"
-    end_coords = f"{end['lng']},{end['lat']}"
-    url = f"{OSRM_BASE_URL}{start_coords};{end_coords}?overview=full&geometries=geojson"
+    north = max(start["lat"], end["lat"]) + 0.01
+    south = min(start["lat"], end["lat"]) - 0.01
+    east = max(start["lng"], end["lng"]) + 0.01
+    west = min(start["lng"], end["lng"]) - 0.01
 
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
+    print(f"Graph bounding box: north={north}, south={south}, east={east}, west={west}")
 
-        # OSRM 응답 디버깅 출력
-        print("OSRM Response:", data)
-
-        if "routes" in data and len(data["routes"]) > 0:
-            route = data["routes"][0]
-            return {
-                "distance": route["distance"],
-                "duration": route["duration"],
-                "geometry": route["geometry"]["coordinates"]
-            }
-        else:
-            raise ValueError("No valid route found in OSRM response.")
-    except Exception as e:
-        print(f"Error fetching road data: {e}")
-        return None
+    # 범위 내 도로 그래프 로드
+    graph = ox.graph_from_bbox(
+        north=north,
+        south=south,
+        east=east,
+        west=west,
+        network_type="drive",
+    )
+    return graph
