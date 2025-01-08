@@ -1,3 +1,4 @@
+// 전역 변수 선언
 let map;
 let markers = [];
 let startMarker = null;
@@ -5,8 +6,9 @@ let endMarker = null;
 
 // 지도 초기화 함수
 function initMap() {
+    // 서울 시청을 중심으로 지도 초기화
     const defaultCenter = { lat: 37.5665, lng: 126.9780 };
-
+    
     // 지도 객체 생성
     map = new google.maps.Map(document.getElementById("map"), {
         center: defaultCenter,
@@ -19,9 +21,6 @@ function initMap() {
             },
         ],
     });
-
-    // PathVisualizer 초기화
-    initializePathVisualizer(map);
 
     // Places Autocomplete 설정
     setupAutocomplete();
@@ -43,6 +42,7 @@ function setupAutocomplete() {
     const startAutocomplete = new google.maps.places.Autocomplete(startInput, options);
     const endAutocomplete = new google.maps.places.Autocomplete(endInput, options);
 
+    // Autocomplete 선택 이벤트 처리
     startAutocomplete.addListener("place_changed", () => {
         const place = startAutocomplete.getPlace();
         if (place.geometry) {
@@ -60,12 +60,14 @@ function setupAutocomplete() {
 
 // 마커 생성/갱신 함수
 function placeMarker(location, type) {
+    // 기존 마커 제거
     if (type === "start" && startMarker) {
         startMarker.setMap(null);
     } else if (type === "end" && endMarker) {
         endMarker.setMap(null);
     }
 
+    // 새 마커 생성
     const marker = new google.maps.Marker({
         position: location,
         map: map,
@@ -74,13 +76,17 @@ function placeMarker(location, type) {
         animation: google.maps.Animation.DROP,
     });
 
+    // 마커 저장
     if (type === "start") {
         startMarker = marker;
     } else {
         endMarker = marker;
     }
 
+    // 지도 중심 이동
     map.panTo(location);
+
+    // 두 지점이 모두 선택되었는지 확인
     checkBothLocationsSelected();
 }
 
@@ -96,6 +102,7 @@ function checkBothLocationsSelected() {
 
 // 이벤트 리스너 설정
 function setupEventListeners() {
+    // 경로 찾기 버튼 클릭 이벤트
     document.getElementById("findPath").addEventListener("click", () => {
         if (startMarker && endMarker) {
             startPathFinding(
@@ -105,6 +112,7 @@ function setupEventListeners() {
         }
     });
 
+    // 초기화 버튼 클릭 이벤트
     document.getElementById("reset").addEventListener("click", resetMap);
 }
 
@@ -113,16 +121,20 @@ async function startPathFinding(start, end) {
     try {
         const response = await fetch("/api/path", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ start, end }),
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                start: start,
+                end: end,
+            }),
         });
 
         const data = await response.json();
-
-        console.log("받은 데이터:", data); // 데이터 디버깅
-
+        
         if (response.ok) {
-            pathVisualizer.startVisualization(data.steps);
+            // TODO: PathVisualizer로 결과 전달
+            console.log("경로 찾기 성공:", data);
         } else {
             showError(data.error || "경로를 찾을 수 없습니다.");
         }
@@ -134,24 +146,28 @@ async function startPathFinding(start, end) {
 
 // 지도 초기화
 function resetMap() {
+    // 마커 제거
     if (startMarker) startMarker.setMap(null);
     if (endMarker) endMarker.setMap(null);
     startMarker = null;
     endMarker = null;
 
+    // 입력 필드 초기화
     document.getElementById("start").value = "";
     document.getElementById("end").value = "";
 
+    // 버튼 상태 초기화
     document.getElementById("findPath").disabled = true;
     document.getElementById("prevStep").disabled = true;
     document.getElementById("nextStep").disabled = true;
     document.getElementById("reset").disabled = true;
 
-    pathVisualizer.reset();
+    // TODO: PathVisualizer 초기화
 }
 
 // 에러 표시
 function showError(message) {
+    // TODO: 에러 메시지 표시 UI 구현
     alert(message);
 }
 
