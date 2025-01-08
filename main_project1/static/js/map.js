@@ -4,7 +4,6 @@ let markers = [];
 let startMarker = null;
 let endMarker = null;
 
-// 지도 초기화 함수
 function initMap() {
     // 서울 시청을 중심으로 지도 초기화
     const defaultCenter = { lat: 37.5665, lng: 126.9780 };
@@ -27,8 +26,11 @@ function initMap() {
 
     // 이벤트 리스너 설정
     setupEventListeners();
-    // map.js의 initMap 함수 내부에 추가
+
+    // PathVisualizer 초기화 - 로그 추가
+    console.log("Initializing PathVisualizer...");
     initializePathVisualizer(map);
+    console.log("PathVisualizer initialized:", pathVisualizer);
 }
 
 // Places Autocomplete 설정
@@ -118,9 +120,10 @@ function setupEventListeners() {
     document.getElementById("reset").addEventListener("click", resetMap);
 }
 
-// 경로 찾기 시작
 async function startPathFinding(start, end) {
     try {
+        console.log("Starting path finding with:", { start, end });
+        
         const response = await fetch("/api/path", {
             method: "POST",
             headers: {
@@ -133,21 +136,32 @@ async function startPathFinding(start, end) {
         });
 
         const data = await response.json();
+        console.log("Received data from server:", data);  // 서버로부터 받은 데이터 확인
         
-        if (response.ok) {
-            // PathVisualizer로 결과 전달
-            if (pathVisualizer && data.steps) {
-                pathVisualizer.startVisualization(data.steps);
-                document.getElementById("prevStep").disabled = false;
-                document.getElementById("nextStep").disabled = false;
-                document.getElementById("reset").disabled = false;
+        if (response.ok && data.success) {
+            if (!pathVisualizer) {
+                console.error("PathVisualizer not initialized!");
+                return;
             }
+            
+            if (!data.steps || !Array.isArray(data.steps)) {
+                console.error("Invalid steps data:", data.steps);
+                return;
+            }
+            
+            console.log("Starting visualization with steps:", data.steps);
+            pathVisualizer.startVisualization(data.steps);
+            
+            // 버튼 활성화
+            document.getElementById("prevStep").disabled = false;
+            document.getElementById("nextStep").disabled = false;
+            document.getElementById("reset").disabled = false;
         } else {
             showError(data.error || "경로를 찾을 수 없습니다.");
         }
     } catch (error) {
+        console.error("Error in startPathFinding:", error);
         showError("서버 오류가 발생했습니다.");
-        console.error("Error:", error);
     }
 }
 

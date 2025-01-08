@@ -12,13 +12,24 @@ class Vertex:
         self.distance = float('inf')
         self.previous = None
 
+    def to_dict(self) -> dict:
+        """JSON 직렬화를 위한 딕셔너리 변환"""
+        return {
+            'id': self.id,
+            'lat': self.lat,
+            'lng': self.lng,
+            'visited': self.visited,
+            'distance': str(self.distance) if self.distance == float('inf') else self.distance,
+            'previous': self.previous
+        }
+
 class PathFinder:
     def __init__(self):
         self.vertices: Dict[int, Vertex] = {}
         self.visualization_steps = []
         self.current_step = 0
 
-    def create_grid(self, start: Tuple[float, float], end: Tuple[float, float], density: int = 10):
+    def create_grid(self, start: Tuple[float, float], end: Tuple[float, float], density: int = 10) -> Tuple[int, int]:
         """시작점과 끝점 사이에 격자 형태의 정점들을 생성"""
         self.vertices.clear()
         self.visualization_steps.clear()
@@ -61,7 +72,7 @@ class PathFinder:
                         )
                         self.vertices[current_id].edges[neighbor_id] = distance
         
-        return 0, vertex_id - 1  # 시작점과 끝점의 vertex_id 반환
+        return 0, vertex_id - 1
 
     def calculate_distance(self, v1: Vertex, v2: Vertex) -> float:
         """두 정점 사이의 거리를 계산 (Haversine 공식 사용)"""
@@ -78,7 +89,7 @@ class PathFinder:
         
         return R * c
 
-    def find_shortest_path(self, start_id: int, end_id: int) -> List[Dict]:
+    def find_shortest_path(self, start_id: int, end_id: int) -> List[dict]:
         """다익스트라 알고리즘을 사용한 최단 경로 탐색"""
         # 초기화
         for vertex in self.vertices.values():
@@ -88,7 +99,6 @@ class PathFinder:
         
         self.vertices[start_id].distance = 0
         pq = [(0, start_id)]
-        self.visualization_steps = []
         
         while pq:
             current_distance, current_id = heapq.heappop(pq)
@@ -100,7 +110,7 @@ class PathFinder:
             current_vertex.visited = True
             
             # 현재 상태 저장
-            self.save_step(current_id)
+            self.save_visualization_step(current_id)
             
             if current_id == end_id:
                 break
@@ -119,45 +129,52 @@ class PathFinder:
         
         return self.visualization_steps
 
-    def save_step(self, current_id: int):
+    def save_visualization_step(self, current_id: int) -> None:
         """현재 상태를 시각화 단계로 저장"""
-        vertices_state = {}
-        edges_state = []
-        
-        # 정점 상태 저장
-        for vertex_id, vertex in self.vertices.items():
-            vertices_state[vertex_id] = {
-                'id': vertex_id,
-                'lat': vertex.lat,
-                'lng': vertex.lng,
-                'visited': vertex.visited,
-                'distance': vertex.distance,
-                'isCurrent': vertex_id == current_id
+        # 정점 상태
+        vertices_state = {
+            str(v.id): {
+                'id': v.id,
+                'lat': v.lat,
+                'lng': v.lng,
+                'visited': v.visited,
+                'distance': str(v.distance) if v.distance == float('inf') else v.distance,
+                'isCurrent': v.id == current_id,
+                'style': {
+                    'size': 8,
+                    'color': '#e74c3c' if v.id == current_id else 
+                            '#3498db' if v.visited else 
+                            '#2ecc71' if v.distance < float('inf') else 
+                            '#95a5a6',
+                    'opacity': 1.0 if v.visited or v.id == current_id else 0.8
+                }
             }
+            for v in self.vertices.values()
+        }
         
-        # 간선 상태 저장
-        for vertex_id, vertex in self.vertices.items():
+        # 간선 상태
+        edges_state = []
+        for v_id, vertex in self.vertices.items():
             for neighbor_id, weight in vertex.edges.items():
-                if vertex_id < neighbor_id:  # 중복 방지
+                if v_id < neighbor_id:  # 중복 방지
+                    is_path = (vertex.previous == neighbor_id or 
+                            self.vertices[neighbor_id].previous == v_id)
                     edges_state.append({
-                        'from': vertex_id,
+                        'from': v_id,
                         'to': neighbor_id,
                         'weight': weight,
-                        'isPath': self.is_edge_in_current_path(vertex_id, neighbor_id)
+                        'isPath': is_path,
+                        'style': {
+                            'width': 4 if is_path else 2,
+                            'color': '#e74c3c' if is_path else '#bdc3c7',
+                            'opacity': 0.8 if is_path else 0.5
+                        }
                     })
         
-        self.visualization_steps.append({
+        # 단계 저장
+        step = {
             'vertices': vertices_state,
             'edges': edges_state,
             'currentId': current_id
-        })
-
-    def is_edge_in_current_path(self, v1_id: int, v2_id: int) -> bool:
-        """현재 찾은 경로에 해당 간선이 포함되어 있는지 확인"""
-        for vertex_id in self.vertices:
-            vertex = self.vertices[vertex_id]
-            if vertex.previous is not None:
-                if (vertex_id == v1_id and vertex.previous == v2_id) or \
-                   (vertex_id == v2_id and vertex.previous == v1_id):
-                    return True
-        return False
+        }
+        self.visualization_steps.append(step)

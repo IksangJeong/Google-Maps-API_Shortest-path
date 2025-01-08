@@ -1,8 +1,8 @@
 class PathVisualizer {
     constructor(map) {
         this.map = map;
-        this.markers = new Map();  // 정점 마커 저장
-        this.lines = new Map();    // 간선 라인 저장
+        this.markers = [];  // 정점 마커를 저장할 배열
+        this.lines = [];    // 간선 라인을 저장할 배열
         this.currentStep = 0;
         this.steps = [];
         this.animationSpeed = 1000; // 1초
@@ -40,11 +40,11 @@ class PathVisualizer {
             map: this.map,
             icon: {
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: style.size,
-                fillColor: style.color,
-                fillOpacity: style.opacity,
+                scale: style.size || 8,
+                fillColor: style.color || '#FF0000',
+                fillOpacity: style.opacity || 0.8,
                 strokeWeight: 1,
-                strokeColor: style.color,
+                strokeColor: style.color || '#FF0000',
             }
         });
     }
@@ -53,9 +53,9 @@ class PathVisualizer {
     createLine(from, to, style) {
         return new google.maps.Polyline({
             path: [from, to],
-            strokeColor: style.color,
-            strokeOpacity: style.opacity,
-            strokeWeight: style.width,
+            strokeColor: style.color || '#FF0000',
+            strokeOpacity: style.opacity || 1.0,
+            strokeWeight: style.width || 2,
             map: this.map
         });
     }
@@ -69,24 +69,73 @@ class PathVisualizer {
 
         // 간선 그리기
         step.edges.forEach(edge => {
+            if (!step.vertices[edge.from] || !step.vertices[edge.to]) return;
+            
             const fromVertex = step.vertices[edge.from];
             const toVertex = step.vertices[edge.to];
             const fromPos = { lat: fromVertex.lat, lng: fromVertex.lng };
             const toPos = { lat: toVertex.lat, lng: toVertex.lng };
 
-            const line = this.createLine(fromPos, toPos, edge.style);
-            this.lines.set(`${edge.from}-${edge.to}`, line);
+            const line = new google.maps.Polyline({
+                path: [fromPos, toPos],
+                strokeColor: edge.style.color,
+                strokeOpacity: edge.style.opacity,
+                strokeWeight: edge.style.width,
+                map: this.map
+            });
+            
+            this.lines.push(line);
         });
 
         // 정점 그리기
         Object.values(step.vertices).forEach(vertex => {
-            const position = { lat: vertex.lat, lng: vertex.lng };
-            const marker = this.createMarker(position, vertex.style);
-            this.markers.set(vertex.id, marker);
+            const marker = new google.maps.Marker({
+                position: { lat: vertex.lat, lng: vertex.lng },
+                map: this.map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: vertex.style.size,
+                    fillColor: vertex.style.color,
+                    fillOpacity: vertex.style.opacity,
+                    strokeWeight: 1,
+                    strokeColor: vertex.style.color,
+                }
+            });
+            
+            this.markers.push(marker);
         });
 
+        // 지도 범위 조정
+        this.fitBounds();
+        
         // 상태 정보 업데이트
         this.updateStatusInfo(step);
+    }
+
+    // 지도 범위 자동 조정
+    fitBounds() {
+        if (this.markers.length === 0) return;
+        
+        const bounds = new google.maps.LatLngBounds();
+        this.markers.forEach(marker => {
+            bounds.extend(marker.getPosition());
+        });
+        this.map.fitBounds(bounds);
+    }
+
+    // 맵 초기화
+    clearMap() {
+        // 마커 제거
+        this.markers.forEach(marker => {
+            if (marker) marker.setMap(null);
+        });
+        this.markers = [];
+
+        // 라인 제거
+        this.lines.forEach(line => {
+            if (line) line.setMap(null);
+        });
+        this.lines = [];
     }
 
     // 상태 정보 업데이트
@@ -97,18 +146,12 @@ class PathVisualizer {
         const totalCount = Object.keys(step.vertices).length;
 
         statusDiv.innerHTML = `
-            <p>단계: ${this.currentStep + 1} / ${this.steps.length}</p>
-            <p>방문한 정점: ${visitedCount} / ${totalCount}</p>
-            <p>현재 정점: ${step.currentId}</p>
+            <div class="status-info">
+                <p><strong>진행 상태:</strong> ${this.currentStep + 1} / ${this.steps.length}</p>
+                <p><strong>방문한 정점:</strong> ${visitedCount} / ${totalCount}</p>
+                <p><strong>현재 정점:</strong> ${step.currentId}</p>
+            </div>
         `;
-    }
-
-    // 맵 초기화
-    clearMap() {
-        this.markers.forEach(marker => marker.setMap(null));
-        this.lines.forEach(line => line.setMap(null));
-        this.markers.clear();
-        this.lines.clear();
     }
 
     // 다음 단계로 이동
@@ -135,6 +178,7 @@ class PathVisualizer {
         this.clearMap();
         this.visualizeCurrentStep();
         this.updateControls();
+        this.stopPlayback();
     }
 
     // 컨트롤 버튼 상태 업데이트
@@ -180,5 +224,7 @@ let pathVisualizer = null;
 
 // 지도 로드 완료 후 PathVisualizer 초기화
 function initializePathVisualizer(map) {
+    console.log("Initializing PathVisualizer...");
     pathVisualizer = new PathVisualizer(map);
+    console.log("PathVisualizer initialized:", pathVisualizer);
 }
