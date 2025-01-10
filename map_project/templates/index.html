@@ -1,20 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shortest Path Finder</title>
+    <title>경로 탐색 시각화</title>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h1>A* 알고리즘으로 최단경로 찾기 </h1>
-    <div id="controls">
-        <input id="start" type="text" placeholder="Enter starting point">
-        <input id="end" type="text" placeholder="Enter destination">
-        <button id="findPath">Find Path</button>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>경로 탐색 시각화</h1>
+            <p class="subtitle">A* 알고리즘 구현 및 시각화</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <div class="input-group">
+                    <span class="material-icons">place</span>
+                    <input id="start" type="text" placeholder="출발지를 입력하세요">
+                </div>
+                <div class="input-group">
+                    <span class="material-icons">flag</span>
+                    <input id="end" type="text" placeholder="도착지를 입력하세요">
+                </div>
+                <button id="findPath" class="primary-button">
+                    <span class="material-icons">directions</span>
+                    경로 찾기
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="map-container">
+                <div id="visualization-controls" class="control-panel hidden">
+                    <div class="control-group">
+                        <button id="showPath" class="control-button">
+                            <span class="material-icons">route</span>
+                            최단 경로 보기
+                        </button>
+                        <button id="playVisualization" class="control-button">
+                            <span class="material-icons">play_arrow</span>
+                            재생
+                        </button>
+                        <button id="fastForward" class="control-button">
+                            <span class="material-icons">fast_forward</span>
+                            빠른 재생
+                        </button>
+                        <button id="instantShow" class="control-button">
+                            <span class="material-icons">flash_on</span>
+                            즉시 보기
+                        </button>
+                        <button id="reset" class="control-button">
+                            <span class="material-icons">refresh</span>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <div class="chat-container">
+                <div class="room-controls">
+                    <div class="room-info">
+                        <h3>채팅방</h3>
+                        {% if room_id %}
+                            <p>방 코드: <span id="room-id">{{ room_id }}</span>
+                            <button id="copy-room-id" class="icon-button">
+                                <span class="material-icons">content_copy</span>
+                            </button></p>
+                        {% else %}
+                            <div class="room-buttons">
+                                <button id="create-room" class="action-button">
+                                    <span class="material-icons">add</span>
+                                    방 만들기
+                                </button>
+                                <div class="join-room-group">
+                                    <input type="text" id="room-code" placeholder="방 코드 입력" class="room-input">
+                                    <button id="join-room" class="action-button">
+                                        <span class="material-icons">login</span>
+                                        참여하기
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div id="users-list" class="users-list">
+                        <h4>참여자</h4>
+                        <div id="users-container"></div>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- 메시지들이 여기에 추가됩니다 -->
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="username" placeholder="닉네임을 입력하세요" class="chat-username">
+                    <div class="chat-actions">
+                        <button id="select-location" class="action-button">
+                            <span class="material-icons">add_location</span>
+                            내 위치 선택하기
+                        </button>
+                        <button id="find-midpoint" class="action-button" disabled>
+                            <span class="material-icons">place</span>
+                            중간지점 찾기
+                        </button>
+                    </div>
+                    <div class="chat-input-group">
+                        <input type="text" id="message-input" placeholder="메시지를 입력하세요" class="chat-input">
+                        <button id="send-button" class="chat-send-button">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="map" style="width: 100%; height: 500px;"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="/static/js/map.js"></script>
+    <script src="/static/js/chat.js"></script>
 </body>
 </html>

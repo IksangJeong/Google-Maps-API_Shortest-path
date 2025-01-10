@@ -80,14 +80,69 @@ def bidirectional_a_star(start, goal, node_positions, adjacency_list):
     came_from_goal = {goal: None}
     cost_so_far_start = {start: 0}
     cost_so_far_goal = {goal: 0}
-    explored_nodes = {}
+    explored_nodes = []
+    node_id_map = {}  # 노드 ID 매핑을 위한 딕셔너리
+    node_counter = 0
+    current_best_path = None  # 현재까지의 최단 경로
+    best_cost = float('inf')
+
+    def reconstruct_path(current, came_from_dict):
+        path = []
+        while current is not None:
+            path.append(current)
+            current = came_from_dict[current]
+        return path
+
+    def add_explored_node(node, cost, previous_node, direction, temp_path=None):
+        nonlocal node_counter
+        node_id = str(node_counter)
+        node_id_map[node] = node_id
+        
+        previous_node_id = None
+        if previous_node is not None and previous_node in node_id_map:
+            previous_node_id = node_id_map[previous_node]
+
+        # 현재 노드까지의 임시 최단 경로가 있다면 포함
+        current_path = None
+        if temp_path:
+            current_path = [
+                {"lat": node_positions[n][0], "lng": node_positions[n][1]}
+                for n in temp_path
+            ]
+
+        explored_nodes.append({
+            "id": node_id,
+            "lat": node_positions[node][0],
+            "lng": node_positions[node][1],
+            "cost": cost,
+            "previousNode": previous_node_id,
+            "direction": direction,
+            "tempPath": current_path  # 임시 최단 경로 추가
+        })
+        node_counter += 1
+        return node_id
 
     while frontier_start and frontier_goal:
         # 출발지에서 탐색
         _, current_start = heapq.heappop(frontier_start)
-        explored_nodes[current_start] = cost_so_far_start[current_start]
+        
+        # 현재까지의 경로 복원
+        temp_path_start = reconstruct_path(current_start, came_from_start)[::-1]
+        
+        current_start_id = add_explored_node(
+            current_start,
+            cost_so_far_start[current_start],
+            came_from_start[current_start],
+            "forward",
+            temp_path_start
+        )
 
         if current_start in cost_so_far_goal:
+            total_cost = cost_so_far_start[current_start] + cost_so_far_goal[current_start]
+            if total_cost < best_cost:
+                best_cost = total_cost
+                meeting_node = current_start
+                current_best_path = temp_path_start
             break
 
         for neighbor, cost in adjacency_list.get(current_start, []):
@@ -103,9 +158,24 @@ def bidirectional_a_star(start, goal, node_positions, adjacency_list):
 
         # 도착지에서 탐색
         _, current_goal = heapq.heappop(frontier_goal)
-        explored_nodes[current_goal] = cost_so_far_goal[current_goal]
+        
+        # 현재까지의 경로 복원
+        temp_path_goal = reconstruct_path(current_goal, came_from_goal)
+        
+        current_goal_id = add_explored_node(
+            current_goal,
+            cost_so_far_goal[current_goal],
+            came_from_goal[current_goal],
+            "backward",
+            temp_path_goal
+        )
 
         if current_goal in cost_so_far_start:
+            total_cost = cost_so_far_start[current_goal] + cost_so_far_goal[current_goal]
+            if total_cost < best_cost:
+                best_cost = total_cost
+                meeting_node = current_goal
+                current_best_path = temp_path_goal
             break
 
         for neighbor, cost in adjacency_list.get(current_goal, []):
@@ -119,18 +189,21 @@ def bidirectional_a_star(start, goal, node_positions, adjacency_list):
                 heapq.heappush(frontier_goal, (priority, neighbor))
                 came_from_goal[neighbor] = current_goal
 
-    # 경로 재구성
-    meeting_node = current_start if current_start in cost_so_far_goal else current_goal
+    # 최종 경로 재구성
     path_from_start = []
     current = meeting_node
     while current is not None:
         path_from_start.append(current)
         current = came_from_start[current]
+    path_from_start.reverse()
 
     path_from_goal = []
     current = meeting_node
     while current is not None:
-        path_from_goal.append(current)
+        if current != meeting_node:
+            path_from_goal.append(current)
         current = came_from_goal[current]
 
-    return path_from_start[::-1] + path_from_goal, explored_nodes
+    final_path = path_from_start + path_from_goal
+
+    return final_path, explored_nodes
