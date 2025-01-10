@@ -126,24 +126,11 @@ MIT License
             <td align='center'>
                 <img src="https://via.placeholder.com/100" width="100" height="100">
                 <br>
-                <a href="#">개발자 1</a>
+                <a href="#">정익상</a>
                 <br>
                 경로 알고리즘 개발
             </td>
-            <td align='center'>
-                <img src="https://via.placeholder.com/100" width="100" height="100">
-                <br>
-                <a href="#">개발자 2</a>
-                <br>
-                프론트엔드 개발
-            </td>
-            <td align='center'>
-                <img src="https://via.placeholder.com/100" width="100" height="100">
-                <br>
-                <a href="#">개발자 3</a>
-                <br>
-                백엔드 개발
-            </td>
+          
         </tr>
     </tbody>
 </table>
