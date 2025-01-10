@@ -5,6 +5,7 @@ let markers = [];
 let currentVisualizationTimeout;
 let pathData = null;
 let animationSpeed = 100;
+let currentMarkers = []; // 마커 관리를 위한 배열
 
 function initMap() {
     window.map = new google.maps.Map(document.getElementById("map"), {
@@ -21,6 +22,30 @@ function initMap() {
 
     initializeAutocomplete();
     setupEventListeners();
+}
+
+function createMarker(position, options = {}) {
+    const marker = new google.maps.Marker({
+        position: position,
+        map: window.map,
+        ...options
+    });
+
+    // 마커 클릭 이벤트 추가
+    marker.addListener('click', () => {
+        if (confirm('이 핀을 삭제하시겠습니까?')) {
+            marker.setMap(null);  // 지도에서 마커 제거
+            currentMarkers = currentMarkers.filter(m => m !== marker);  // 배열에서도 제거
+        }
+    });
+
+    currentMarkers.push(marker);
+    return marker;
+}
+
+function clearAllMarkers() {
+    currentMarkers.forEach(marker => marker.setMap(null));
+    currentMarkers = [];
 }
 
 function initializeAutocomplete() {
@@ -50,11 +75,7 @@ function handlePlaceSelection(autocomplete, label, type) {
     else endCoords = coords;
 
     window.map.setCenter(coords);
-    new google.maps.Marker({
-        position: coords,
-        map: window.map,
-        label: label,
-    });
+    createMarker(coords, { label: label });
 }
 
 function setupEventListeners() {
@@ -74,6 +95,11 @@ function setupEventListeners() {
         showAllNodesInstantly();
     });
     document.getElementById("reset").addEventListener("click", clearVisualization);
+    document.getElementById("clearMarkers").addEventListener("click", () => {
+        if (confirm('모든 핀을 삭제하시겠습니까?')) {
+            clearAllMarkers();
+        }
+    });
 }
 
 async function handleFindPath() {

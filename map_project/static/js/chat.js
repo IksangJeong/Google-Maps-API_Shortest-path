@@ -78,19 +78,24 @@ window.handleMapClick = (e) => {
     locationMarker = new google.maps.Marker({
         position: clickedLocation,
         map: window.map,
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 7,
-            fillColor: '#1976D2',
-            fillOpacity: 0.9,
-            strokeColor: '#FFFFFF',
-            strokeWeight: 2
+        label: {
+            text: "내 위치",
+            fontSize: "9px",
+            color: "#FFFFFF",
+            fontWeight: "bold",
+        },
+        title: "내 위치"
+    });
+
+    // 마커 클릭 이벤트 추가
+    locationMarker.addListener('click', () => {
+        if (confirm('이 핀을 삭제하시겠습니까?')) {
+            locationMarker.setMap(null);
         }
     });
 
     // 위치 정보 저장
     myLocation = clickedLocation;
-    
     // 선택한 위치의 주소 가져오기
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ location: clickedLocation }, (results, status) => {
