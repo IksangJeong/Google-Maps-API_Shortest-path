@@ -131,8 +131,7 @@ MIT License
                 경로 알고리즘 개발
             </td>
           
-        </tr>
-    </tbody>
+
 </table>
 </div>
 
