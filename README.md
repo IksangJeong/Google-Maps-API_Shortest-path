@@ -8,6 +8,15 @@
 ## 📌 프로젝트 소개
 
 실시간으로 여러 사용자의 위치를 공유하고, A* 알고리즘을 활용하여 최적의 중간지점을 찾아주는 웹 서비스입니다.
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 30 32" src="https://github.com/user-attachments/assets/adef1e7a-87f7-4ee3-bce1-9336c31f7d88" />
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 31 04" src="https://github.com/user-attachments/assets/6186fcb8-7ceb-4523-8fb9-c9d6143ab535" /><img width="1389" alt="스크린샷 2025-01-10 오전 10 31 12" src="https://github.com/user-attachments/assets/974138e1-203c-4a37-8f3e-b1a73b741c4c" />
+
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 31 12" src="https://github.com/user-attachments/assets/2766a145-eca2-4135-b988-f1816c414ec5" />
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 32 33" src="https://github.com/user-attachments/assets/bf202c57-5d5b-4e76-9ff7-53bc10c256a6" /><img width="1389" alt="스크린샷 2025-01-10 오전 10 32 33" src="https://github.com/user-attachments/assets/19a48d74-0900-4b7a-8cb7-eb0a7a13eb34" />
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 30 43" src="https://github.com/user-attachments/assets/2bcac9bc-3390-4245-a628-f13452ac54a5" />
+
+<img width="1389" alt="스크린샷 2025-01-10 오전 10 30 55" src="https://github.com/user-attachments/assets/b2fef254-05f3-469c-9c7c-6ab03a46d876" />
+
 
 <<<<<<< HEAD
 ### ✨ 주요 기능
