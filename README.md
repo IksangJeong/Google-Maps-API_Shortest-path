@@ -144,7 +144,7 @@ python app.py
     <tbody>
         <tr>
             <td align='center'>
-                <img src="https://via.placeholder.com/100" width="100" height="100">
+                <img src="![23B22D5A-DC9E-4BFD-B766-03E99E92304B](https://github.com/user-attachments/assets/d6ef0978-da8f-4845-9c64-11e5a9c51cb0)" width="100" height="100">
                 <br>
                 <a href="#">정익상</a>
                 <br>
