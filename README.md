@@ -1,5 +1,7 @@
 # 실시간 위치 공유 및 중간지점 찾기 서비스 🗺️
 
+map_project 폴더를 실행하면 됩니다.
+
 [![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=Python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=Flask&logoColor=white)](https://flask.palletsprojects.com/)
 [![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?style=flat-square&logo=Socket.io&logoColor=white)](https://socket.io/)
